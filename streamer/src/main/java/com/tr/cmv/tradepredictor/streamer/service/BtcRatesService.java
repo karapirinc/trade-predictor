@@ -1,25 +1,31 @@
 package com.tr.cmv.tradepredictor.streamer.service;
 
-import com.tr.cmv.tradepredictor.streamer.BTCStreams;
 import com.tr.cmv.tradepredictor.streamer.model.Rate;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.support.MessageBuilder;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeTypeUtils;
 
-@Service @Slf4j public class BtcRatesService {
-    private final BTCStreams btcStreams;
+@Service public class BtcRatesService {
 
-    public BtcRatesService(BTCStreams btcStreams) {
-        this.btcStreams = btcStreams;
-    }
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(BtcRatesService.class);
+
+    @Autowired private KafkaTemplate<String, String> kafkaTemplate;
+
+    private final static String BTC_RATE_TOPIC = "btc_rate_topic";
 
     public void sendBtcRate(final Rate rate) {
         log.info("Sending rate {}", rate);
-        MessageChannel messageChannel = btcStreams.outboundBtc();
-        messageChannel.send(MessageBuilder.withPayload(rate)
-                                    .setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON).build());
+
+        String payload = rate.toString();
+        kafkaTemplate.send(BTC_RATE_TOPIC, payload);
+
+        log.info("Message: {}  sent to topic: ", payload, BTC_RATE_TOPIC);
+    }
+
+    @KafkaListener(topics = "topic1") public void receiveBTCRateTopic(ConsumerRecord<?, ?> consumerRecord) {
+        log.info("Receiver on {}: {}", BTC_RATE_TOPIC, consumerRecord.toString());
     }
 }

@@ -1,13 +1,5 @@
-spring:
-  cloud:
-    stream:
-      kafka:
-        binder:
-          brokers: localhost:9092
-      bindings:
-        btc-in:
-          destination: btcrates
-          contentType: application/json
-        btc-out:
-          destination: btcrates
-          contentType: application/json
+server.servlet.context-path: /streamer
+spring.kafka:
+  consumer:
+    group-id: coin-rate
+  bootstrap-servers: localhost:9092
