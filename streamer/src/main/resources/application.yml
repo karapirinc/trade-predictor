@@ -3,3 +3,4 @@ spring.kafka:
   consumer:
     group-id: coin-rate
   bootstrap-servers: localhost:9092
+spring.devtools.remote.secret: thisismysecret

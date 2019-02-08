@@ -7,17 +7,9 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath 'se.transmode.gradle:gradle-docker:1.2'
 	}
 }
-
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-
-group = 'com.tr.cmv.tradepredictor'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
@@ -27,6 +19,33 @@ repositories {
 ext {
 }
 
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'docker'
+
+description = "streamer"
+
+jar {
+    baseName = 'streamer'
+    version =  '0.0.1-SNAPSHOT'
+}
+
+def javaVersion = JavaVersion.VERSION_1_8
+
+
+group = 'com.tr.cmv.tradepredictor'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+
+
 dependencies {
 	compile('org.apache.kafka:kafka-streams')
 	compile('org.springframework.kafka:spring-kafka')
@@ -34,10 +53,27 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-devtools')
 	compileOnly('org.projectlombok:lombok')
+	annotationProcessor('org.projectlombok:lombok')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
 dependencyManagement {
 	imports {
+	}
+}
+
+docker {
+    baseImage "alpine:edge"
+    maintainer 'Yusuf Ismail Oktay "yusufismailoktay@gmail.com"'
+}
+
+task buildDocker (type:Docker, dependsOn: build) {
+	applicationName = jar.baseName
+	dockerfile = file('Dockerfile')
+	doFirst {
+		copy {
+			from jar
+			into stageDir
+		}
 	}
 }
