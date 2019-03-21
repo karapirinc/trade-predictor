@@ -1,4 +1,4 @@
-version: '3.3'
+version: '2'
 services:
   zookeeper:
     image: wurstmeister/zookeeper
@@ -12,9 +12,9 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+#      KAFKA_ADVERTISED_HOST_NAME: 192.168.1.1
       KAFKA_CREATE_TOPICS: "topic1:1:1"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      LOG4J_LOGGER_KAFKA_AUTHORIZER_LOGGER: DEBUG, authorizerAppender
     volumes:
-      - .:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
+
